@@ -1,0 +1,2 @@
+./submit_process.py -p ktmin -o /lustre/or-hydra/cades-birthright/mfasel_alice/fastsim/HERWIG/ktmin_prod3 -j 100 -n 100000 -e 6500 -m `pwd`/macros/makeJetSpectrumAndSoftDrop.C -r AnalysisResults.root
+./submit_process.py -p pthard -o /lustre/or-hydra/cades-birthright/mfasel_alice/fastsim/HERWIG/pthard_prod4 -j 100 -n 100000 -e 6500 -m `pwd`/macros/makeJetSpectrumAndSoftDrop.C -r AnalysisResults.root

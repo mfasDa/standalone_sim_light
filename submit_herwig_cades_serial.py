@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 import argparse
-from engine.SimulationEngine import SimulationEngine
+from engine.SimulationEngine import SimulationEngine, SimulationParam
 import logging
 import os
 import sys
@@ -56,7 +56,21 @@ def submit_herwig_cades(outputdir: str, jobs: int, events: int, energy: float, p
         os.makedirs(outputdir, 0o755)
 
     engine = HerwigEngine(sourcedir, os.path.join(outputdir, "herwig.in"))
-    engine.GenerateRuncard(2 * energy, process, events, uetune)
+    params = SimulationParam()
+    params.beam_energy = energy
+    params.events = events
+    params.pdfset = "CT14lo"
+    params.hepmcfile = "events.hepmc"
+    params.tune = uetune
+    if "pthard" in process:
+        params.process = "pthard"
+        params.pthardbin = int(process.replace("pthard_", ""))
+    elif "ktmin" in process:
+        params.process = "ktmin"
+        params.kthardmin = int(process.replace("ktmin_", ""))
+    else:
+        params.process = process
+    engine.generate_runcard(params)
     jobid = launch_job(createJobscript(outputdir, timelimit, jobs, events, macro, engine, queue))
     if rootfile:
         submit_merge(outputdir, rootfile, jobid, queue)

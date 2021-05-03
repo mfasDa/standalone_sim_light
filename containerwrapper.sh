@@ -11,4 +11,5 @@ for argID in "$@"; do
         first=0
     fi
 done
+echo "Container wrapper: Launching $cmd"
 eval $cmd

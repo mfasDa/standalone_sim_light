@@ -29,7 +29,6 @@ class runhandler:
 
     def launch(self):
         runcommand = "{WRAP} {EXE}".format(WRAP=os.path.join(self.__repository, "containerwrapper.sh"), EXE=self.__executable) if self.__containerhandler else self.__executable
-        runcommand = self.__executable
         for arg in self.__arguments:
             runcommand += " {ARG}".format(ARG=arg)
         if self.__logfile and len(self.__logfile):

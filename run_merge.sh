@@ -2,7 +2,7 @@
 WORKDIR=$1
 ROOTFILE=$2
 
-source $HOME/alice_setenv
+#source $HOME/alice_setenv
 PACKAGES=(ROOT)
 ALIENV=`which alienv`
 for pack in ${PACKAGES[@]}; do

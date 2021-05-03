@@ -8,7 +8,7 @@ class AnalysisRunner:
     def __init__(self, macro: str, hepmcfile: str):
         self.__macro = macro
         self.__hepmcfile = hepmcfile
-        self.__modules = ["fastjet/latest", "hepmc/latest", "ROOT/latest"]
+        self.__modules = ["fastjet/latest", "HepMC/latest", "ROOT/latest"]
 
     def launch(self):
         runsteer = ProcessRunner()

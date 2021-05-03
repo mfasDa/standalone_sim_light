@@ -83,7 +83,7 @@ def create_jobscript(inputbase: str, outputdir: str, filesperjob: int, macro: st
     batchhandler.workdir = outputdir
     batchhandler.init_jobscript(jobscriptname)
     batchhandler.message("Starting analysis in current workdir ...")
-    process_runner = runhandler(os.path.join(sourcedir, "run_analysis_general.sh"), ["$WORKDIR/inputfiles", "$WORKDIR", macroname])
+    process_runner = runhandler(sourcedir, os.path.join(sourcedir, "run_analysis_general.sh"), ["$WORKDIR/inputfiles", "$WORKDIR", macroname])
     process_runner.initialize(cluster_setup)
     process_runner.set_logfile("run_analysis.log")
     batchhandler.launch(process_runner)

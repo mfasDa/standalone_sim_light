@@ -4,11 +4,13 @@ INPUTLIST=$1
 OUTPUTDIR=$2
 MACRO=$3
 
+echo "Running analysis on existing sample ..."
+
 if [ ! -f $INPUTLIST ]; then
     echo "List with inputfiles $INPUTLIST not found, exiting ..."
 fi
 
-source $HOME/alice_setenv
+#source $HOME/alice_setenv
 PACKAGES=(ROOT fastjet HepMC)
 ALIENV=`which alienv`
 for pack in ${PACKAGES[@]}; do
@@ -42,8 +44,10 @@ ALLFILES=($(ls -1))
 DELFILES=()
 MERGECMD=$(printf "hadd -f %s" $ROOTFILE)
 for tstfile in ${ALLFILES[@]}; do
-    MERGECMD=$(printf "%s %s" "$MERGECMD" $tstfile)
-    DELFILES+=($tstfile)
+    if [ "x$(echo $tstfile | grep $FILEBASE)" != "x" ]; then
+        MERGECMD=$(printf "%s %s" "$MERGECMD" $tstfile)
+        DELFILES+=($tstfile)
+    fi
 done
 eval $MERGECMD
 

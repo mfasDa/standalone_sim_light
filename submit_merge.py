@@ -23,7 +23,7 @@ def create_jobscript(workdir: str, rootfile: str , maxtime: str, dependency=None
     if len(queue):
         batchhandler.partition = queue
     batchhandler.init_jobscript(jobscriptname)
-    process_runner = runhandler(workerscript, [workdir, rootfile])
+    process_runner = runhandler(repo, workerscript, [workdir, rootfile])
     process_runner.initialize(cluster_setup)
     batchhandler.launch(process_runner)
     batchhandler.remove(jobscriptname)

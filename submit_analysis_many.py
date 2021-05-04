@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--macro", metavar="MACRO", type=str, default="makeJetSpectrumAndSoftDrop.C", help="Macro to be processed")
     parser.add_argument("-n", "--numfiles", metavar="NUMFILES", type=int, default=10, help="Number of files to analyse per slot")
     parser.add_argument("-r", "--rootfile", metavar="ROOTFILE", type=str, default="", help="Name of the rootfile")
-    parser.add_argument("-t", "--timelimit", metavar="TIMELIMIT", type=str, default="01:00:00", help="Time limit")
+    parser.add_argument("-t", "--timelimit", metavar="TIMELIMIT", type=str, default="10:00:00", help="Time limit")
     parser.add_argument("-q", "--queue", metavar="QUEUE", default="gpu", help="Queue/Partition (default: gpu)")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug messages")
     args = parser.parse_args()

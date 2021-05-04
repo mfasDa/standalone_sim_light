@@ -83,7 +83,7 @@ def create_jobscript(inputbase: str, outputdir: str, filesperjob: int, macro: st
     batchhandler.workdir = outputdir
     batchhandler.init_jobscript(jobscriptname)
     batchhandler.message("Starting analysis in current workdir ...")
-    process_runner = runhandler(sourcedir, os.path.join(sourcedir, "run_analysis_general.sh"), ["$WORKDIR/inputfiles", "$WORKDIR", macroname])
+    process_runner = runhandler(sourcedir, os.path.join(sourcedir, "run_analysis_general.sh"), ["$WORKDIR/inputfiles.txt", "$WORKDIR", macroname])
     process_runner.initialize(cluster_setup)
     process_runner.set_logfile("run_analysis.log")
     batchhandler.launch(process_runner)
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--macro", metavar="MACRO", type=str, default="makeJetSpectrumAndSoftDrop.C", help="Macro to be processed")
     parser.add_argument("-n", "--nfiles", metavar="NFILES", type=int, default=10, help="Number of files per slot")
     parser.add_argument("-r", "--rootfile", metavar="ROOTFILE", type=str, default="", help="Name of the resulting roofile (for merging)")
-    parser.add_argument("-t", "--timelimit", metavar="TIMELIMIT", type=str, default="01:00:00", help="Max. time per slot")
+    parser.add_argument("-t", "--timelimit", metavar="TIMELIMIT", type=str, default="10:00:00", help="Max. time per slot")
     parser.add_argument("-q", "--queue", metavar="QUEUE", default="gpu", help="Queue/Partition (default: gpu)")
     parser.add_argument("-d" ,"--debug", metavar="DEBUG", action="store_true", help="Enable debug printouts")
     args = parser.parse_args()

@@ -8,6 +8,7 @@ echo "Running analysis on existing sample ..."
 
 if [ ! -f $INPUTLIST ]; then
     echo "List with inputfiles $INPUTLIST not found, exiting ..."
+    exit 1
 fi
 
 #source $HOME/alice_setenv

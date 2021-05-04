@@ -5,6 +5,7 @@ from tools.cluster_setup import cluster_setup
 class b587_setup(cluster_setup):
 
     def __init__(self):
-        super(cluster_setup).__init__()
+        super().__init__()
+        self._name = "B587"
         self._hasMemResouce = False
         self._hasTimeLimit = False

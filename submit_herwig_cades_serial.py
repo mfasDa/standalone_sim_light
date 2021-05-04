@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 import argparse
+from tools.cluster_setup import cluster_setup
 from engine.SimulationEngine import SimulationEngine, SimulationParam
 import logging
 import os
@@ -37,7 +38,7 @@ def createJobscript(outputdir: str, maxtime: str, nslots: int, nevents: int, mac
     batchhandler.init_jobscript(jobscriptname)
     batchhandler.message("Running simulation ...")
     batchhandler.write_instruction("SEED=$SLURM_JOBID")
-    process_runner = runhandler(os.path.join(sourcedir, "simrun.sh"), [engine.generator, os.path.basename(engine.runcard), nevents, "$SEED", macroname])
+    process_runner = runhandler(sourcedir, os.path.join(sourcedir, "simrun.sh"), [cluster_config.name(), engine.generator, os.path.basename(engine.runcard), nevents, "$SEED", macroname])
     process_runner.initialize(cluster_config)
     process_runner.set_logfile("run_{GENERATOR}.log".format(GENERATOR=engine.generator))
     batchhandler.launch(process_runner)

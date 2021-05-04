@@ -11,3 +11,4 @@ class cades_setup(cluster_setup):
         self._basemodules = ["python/3.6.3", "PE-gnu", "singularity"]
         self._account = "birthright"
         self._hasMemResouce = True
+        self._hasTimeLimit = True

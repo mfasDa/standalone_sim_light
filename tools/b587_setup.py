@@ -7,3 +7,4 @@ class b587_setup(cluster_setup):
     def __init__(self):
         super(cluster_setup).__init__()
         self._hasMemResouce = False
+        self._hasTimeLimit = False

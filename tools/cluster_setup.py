@@ -8,6 +8,7 @@ class cluster_setup(object):
         self._basemodules = None
         self._account = None
         self._hasMemResouce = None
+        self._hasTimeLimit = None
 
     def image(self):
         return self._image
@@ -23,3 +24,6 @@ class cluster_setup(object):
 
     def hasMemResource(self):
         return self._hasMemResouce
+
+    def hasTimeLimit(self):
+        return self._hasTimeLimit

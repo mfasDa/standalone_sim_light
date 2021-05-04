@@ -32,14 +32,13 @@ class slurm:
         self.__dependency = None
         self.__scriptwriter = None
         self.__scriptname = None
-        self.__hasMemResource = False
+        self.__clusterconfig = None
 
     def configure_from_setup(self, batchsetup: cluster_setup):
+        self.__clusterconfig = batchsetup
         self.__account = batchsetup.account()
         if batchsetup.basemodules():
             self.__modules = batchsetup.basemodules()
-        if batchsetup.hasMemResource():
-            self.__hasMemResource = batchsetup.hasMemResource()
 
     def add_module(self, module: str):
         self.__modules.append(module)
@@ -63,8 +62,9 @@ class slurm:
         self.write_instruction("#SBATCH -p {PARTITION}".format(PARTITION=self.__partition))
         self.write_instruction("#SBATCH -J {JOBNAME}".format(JOBNAME=self.__jobname))
         self.write_instruction("#SBATCH -o {LOGFILE}".format(LOGFILE=self.__logfile))
-        self.write_instruction("#SBATCH -t {TIMELIMIT}".format(TIMELIMIT=self.__timelimit))
-        if self.__hasMemResource:
+        if self.__clusterconfig and self.__clusterconfig.hasTimeLimit():
+            self.write_instruction("#SBATCH -t {TIMELIMIT}".format(TIMELIMIT=self.__timelimit))
+        if self.__clusterconfig and self.__clusterconfig.hasMemResource():
             self.write_instruction("#SBATCH --mem={MEMLIMIT}".format(MEMLIMIT=self.__memlimit))
         for module in self.__modules:
             self.write_instruction("module load {MODULE}".format(MODULE=module))

@@ -96,13 +96,13 @@ class PtHardHandler:
 class SimulationEngine:
 
     def __init__(self, repo: str, runcard: str):
-        self._repo = repo
+        self._repository = repo
         self._runcard = runcard
         self._generator = ""
         self._inputfiles = []
 
     def set_repo(self, repo: str):
-        self._repo = repo
+        self._repository = repo
 
     def set_runcard(self, runcard: str):
         self._runcard = runcard
@@ -114,7 +114,7 @@ class SimulationEngine:
         self._inputfiles = inputfiles
 
     def get_repo(self) -> str:
-        return self._repo
+        return self._repository
 
     def get_runcard(self) -> str:
         return self._runcard

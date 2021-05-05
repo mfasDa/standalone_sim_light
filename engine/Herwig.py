@@ -7,15 +7,15 @@ from engine.SimulationEngine import PtHardHandler, SimulationEngine, SimulationP
 class HerwigEngine(SimulationEngine):
 
     def __init__(self, repository: str, runcard: str):
-        super(SimulationEngine).init(repository, runcard)
+        super().__init__(repository, runcard)
         self.generator = "herwig"
-        self.inputfiles = [self.__runcard] + [os.path.join(self.__repository, inputfile) for inputfile in os.listdir(self.__repository, "HerwigIn")]
+        self.inputfiles = [self._runcard] + [os.path.join(self._repository, inputfile) for inputfile in os.listdir(self._repository, "HerwigIn")]
 
     def generate_runcard(self, params: SimulationParam):
         # See (minimum-bias): http://mcplots.cern.ch/dat/pp/jets/pt/atlas3-akt4/7000/herwig++/2.7.1/default.params
         # See (jet): http://mcplots.cern.ch/dat/pp/jets/pt/cms2011-y0.5/7000/herwig++/2.7.1/default.params
         # See also for minimum-bias: Chapter B.2 https://arxiv.org/abs/0803.0883
-        with open(self.__runcard, "w") as myfile:
+        with open(self._runcard, "w") as myfile:
             myfile.write("read snippets/PPCollider.in\n") # Markus: Take PPCollider.in fron Herwig repositiory instead of custom version
             myfile.write("set /Herwig/Generators/EventGenerator:EventHandler:LuminosityFunction:Energy %f\n" %(params.cms_energy))
             if params.process == "mb":
@@ -27,7 +27,7 @@ class HerwigEngine(SimulationEngine):
                 # Use SoftTune as UE tune for Herwig7 (>= 7.1) based on https://herwig.hepforge.org/tutorials/mpi/tunes.html
                 myfile.write("read {}.in\n".format(params.tune))
                 # Set PDF (LO)
-                self.__configure_pdfset(params.pdfset)
+                self.__configure_pdfset(myfile, params.pdfset)
                 kthardmin = 0.
                 kthardmax = 0.
                 self.__configure_Matrixelement(myfile, params.process)
@@ -88,7 +88,7 @@ class HerwigEngine(SimulationEngine):
 class HerwigRunner(SimulationRunner):
 
     def __init__(self, runcard: str, events: int, seed: int):
-        super(SimulationRunner).__init__(runcard, events, seed)
+        super().__init__(runcard, events, seed)
         self.modules = ["Herwig/latest"]
 
     def launch(self):

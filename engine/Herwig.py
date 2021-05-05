@@ -97,7 +97,7 @@ class HerwigRunner(SimulationRunner):
         for module in self.modules:
             runsteer.load_module(module)
         runsteer.print_modules()
-        runsteer.source_script("$HOME/lhapdf_data_setenv")
-        runsteer.write_instruction("Herwig --repo={REPO} read {RUNCARD} &> hw_setup.log".format(REPO=herwig_repository, RUNCARD=self.runcard))
-        runsteer.write_instruction("Herwig --repo={REPO} run herwig.run -N {EVENTS} -s {SEED} &> hw_run.log".format(REPO=herwig_repository, EVENTS=self.events, SEED=self.seed))
+        runsteer.source_script("$CLUSTER_HOME/lhapdf_data_setenv")
+        runsteer.write_instruction("Herwig --repo={REPO} read {RUNCARD} &> hw_setup.log".format(REPO=herwig_repository, RUNCARD=self._runcard))
+        runsteer.write_instruction("Herwig --repo={REPO} run herwig.run -N {EVENTS} -s {SEED} &> hw_run.log".format(REPO=herwig_repository, EVENTS=self._events, SEED=self._seed))
         runsteer.execute()

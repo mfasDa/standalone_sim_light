@@ -1,5 +1,15 @@
 #! /usr/bin/env python3
 
+class RunCard:
+
+    def __init__(self, name: str):
+        self.__writer = open(name, "w")
+
+    def write_instruction(self, instruction: str):
+        self.__writer.write("{}\n".format(instruction))
+    
+    def __del__(self):
+        self.__writer.close()
 
 class SimulationParam:
 
@@ -140,6 +150,9 @@ class SimulationRunner:
         self._events = events
         self._seed = seed
         self._modules = []
+
+    def launch(self):
+        pass
 
     def set_runcard(self, runcard: str):
         self._runcard = runcard

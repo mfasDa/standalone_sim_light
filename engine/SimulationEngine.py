@@ -11,6 +11,15 @@ class RunCard:
     def __del__(self):
         self.__writer.close()
 
+class Process:
+
+    def __init__(self):
+        pass
+
+    def encode(self, runcard: RunCard):
+        pass
+
+
 class SimulationParam:
 
     def __init__(self):

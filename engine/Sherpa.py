@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import os
-from engine.SimulationEngine import RunCard, SimulationEngine, SimulationRunner, SimulationParam
+from engine.SimulationEngine import Process, RunCard, SimulationEngine, SimulationRunner, SimulationParam
 from tools.processRunner import ProcessRunner
 
 class SherpaRuncard(RunCard):
@@ -31,14 +31,6 @@ class SherpaRuncard(RunCard):
                 return ""
             algorithm = algorithms[self.__algorithm]
             return "NJetFinder {NJET} {PTMIN} {ETMIN} {RADIUS} {ALGORITHM}".format(NJET=self.__njets, PTMIN=self.__ptmin, ETMIN=self.__etmin, RADIUS=self.__radius, ALGORITHM=algorithm)
-
-    class Process:
-
-        def __init__(self):
-            pass
-
-        def encode(self, runcard: RunCard):
-            pass
 
     class DijetProcess(Process):
 

@@ -125,6 +125,8 @@ class HerwigEngine(SimulationEngine):
         # See (jet): http://mcplots.cern.ch/dat/pp/jets/pt/cms2011-y0.5/7000/herwig++/2.7.1/default.params
         # See also for minimum-bias: Chapter B.2 https://arxiv.org/abs/0803.0883
         self.__runcard.set_cmsenergy(params.cms_energy)
+        self.__runcard.set_events(params.events)
+        self.__runcard.set_hepmcfile(params.hepmcfile)
         if params.process == "mb":
             self.__runcard.add_process(HerwigRuncard.MBProcess())
         else:

@@ -6,8 +6,8 @@ from tools.cluster_setup import cluster_setup
 
 class runhandler:
 
-    def __init__(self, repositiry: str, executable: str, arguments: list):
-        self.__repository = repositiry
+    def __init__(self, repository: str, executable: str, arguments: list):
+        self.__repository = repository
         self.__executable = executable
         self.__arguments = arguments
         self.__logfile = None

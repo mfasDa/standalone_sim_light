@@ -530,10 +530,11 @@ Pythia8::Pythia *configurePythia(int pthardbin, double ecms, int seed)
     pythia->readString(Form("Beams:idA = %10d", idAin));
     pythia->readString(Form("Beams:idB = %10d", idBin));
 
-    // Decays: Pi0: On
-    pythia->readString("111:mayDecay  = on");
-    // Decays: long-lived off
+    // Decays: Pi0 and K0: Off
+    pythia->readString("111:mayDecay  = off");
     pythia->readString("310:mayDecay  = off");
+
+    // Decays: long-lived off
     pythia->readString("3122:mayDecay = off");
     pythia->readString("3112:mayDecay = off");
     pythia->readString("3222:mayDecay = off");
@@ -550,7 +551,7 @@ Pythia8::Pythia *configurePythia(int pthardbin, double ecms, int seed)
     return pythia;
 }
 
-void simAnalysisPythia(int pthardbin, int seed, double ecms = 13000., int maxevents = 100000)
+void simPythiaK0Pi0Stable(int pthardbin, int seed, double ecms = 13000., int maxevents = 100000)
 {
     HistogramHandler histos;
     histos.build();

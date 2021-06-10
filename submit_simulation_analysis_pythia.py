@@ -36,7 +36,7 @@ def createJobscript(outputdir: str, maxtime: str, nslots: int, nevents: int, ene
     batchhandler.init_jobscript(jobscriptname)
     batchhandler.message("Running simulation ...")
     batchhandler.write_instruction("SEED=$SLURM_JOBID")
-    process_runner = runhandler(os.path.join(sourcedir, "run_pythia_general.sh"), [nevents, "$SEED", energy_cms, pthardbin, macroname])
+    process_runner = runhandler(sourcedir, os.path.join(sourcedir, "run_pythia_general.sh"), [nevents, "$SEED", energy_cms, pthardbin, macroname])
     process_runner.initialize(cluster_setup)
     process_runner.set_logfile("run_pythia.log")
     batchhandler.launch(process_runner)

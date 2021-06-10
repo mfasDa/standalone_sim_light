@@ -2,93 +2,164 @@
 
 import os
 from tools.processRunner import ProcessRunner
-from engine.SimulationEngine import PtHardHandler, SimulationEngine, SimulationParam, SimulationRunner
+from engine.SimulationEngine import Process, RunCard, PtHardHandler, SimulationEngine, SimulationParam, SimulationRunner
+
+class HerwigRuncard(RunCard):
+
+    class MBProcess(Process):
+
+        def __init__(self):
+            super().__init__()
+
+        def encode(self, runcard: RunCard):
+            runcard.write_instruction("set /Herwig/Shower/ShowerHandler:IntrinsicPtGaussian 2.2*GeV")
+            runcard.write_instruction("read snippets/MB.in")
+            runcard.write_instruction("read snippets/Diffraction.in")
+
+    class HardProcess(Process):
+
+        def __init__(self):
+            super().__init__()
+            self.__ktmin = -1.
+            self.__ktmax = -1.
+            self.__mtmax = -1.
+            self.__pdfset = ""
+            self.__tune = ""
+
+        def configure(self, ktmin: float, ktmax: float, mtmax: float):
+            self.__ktmin = ktmin
+            self.__ktmax = ktmax
+            self.__mtmax = mtmax
+
+        def set_tune(self, tune):
+            self.__tune = tune
+
+        def encode(self, runcard: RunCard):
+            self._build_matrixelement(runcard)
+            if len(self.__tune):
+                runcard.write_instruction("read {}.in".format(self.__tune))
+            self.__build_kthardrange(runcard)
+            self.__build_pdfset(runcard)
+            runcard.write_instruction("set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE -1")
+
+        def _build_matrixelement(self, runcard: RunCard):
+            pass
+
+        def __build_pdfset(self, runcard: RunCard):
+            runcard.write_instruction("set /Herwig/Partons/HardLOPDF:PDFName {}".format(self.__pdfset))
+            runcard.write_instruction("set /Herwig/Partons/ShowerLOPDF:PDFName {}".format(self.__pdfset))
+            runcard.write_instruction("set /Herwig/Partons/MPIPDF:PDFName {}".format(self.__pdfset))
+            runcard.write_instruction("set /Herwig/Partons/RemnantPDF:PDFName {}".format(self.__pdfset))
+
+        def __build_kthardrange(self, runcard: RunCard):
+            runcard.write_instruction("set /Herwig/Cuts/JetKtCut:MinKT %f*GeV" %(self.__ktmin))
+            runcard.write_instruction("set /Herwig/Cuts/JetKtCut:MaxKT %f*GeV" %(self.__ktmax))
+            runcard.write_instruction("set /Herwig/Cuts/Cuts:MHatMax %f*GeV" %(self.__mtmax))
+            runcard.write_instruction("set /Herwig/Cuts/Cuts:MHatMin 0.0*GeV")
+
+
+    class DijetProcess(HardProcess):
+        
+        def __init__(self):
+            super().__init__()
+
+        def _build_matrixelement(self, runcard: RunCard):
+            runcard.write_instruction("insert /Herwig/MatrixElements/SubProcess:MatrixElements[0] /Herwig/MatrixElements/MEQCD2to2")
+
+    class HeavyFlavourProcess(HardProcess):
+
+        def __init__(self, quarktype: str):
+            super().__init__()
+            self.__quarktype = quarktype
+
+        def _build_matrixelement(self, runcard: RunCard):
+            quarktype = 4 if self.__quarktype == "charm" else 5
+            runcard.write_instruction("set /Herwig/MatrixElements/MEHeavyQuark:QuarkType {}".format(quarktype))
+            runcard.write_instruction("insert /Herwig/MatrixElements/SubProcess:MatrixElements[0] /Herwig/MatrixElements/MEHeavyQuark")
+
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.__cmsenergy = 0.
+        self.__hepmcfile = ""
+        self.__events = 0
+        self.__processes = []
+
+    def set_hepmcfile(self, hepmcfile: str):
+        self.__hepmcfile = hepmcfile
+
+    def set_events(self, events: int):
+        self.__events = events
+
+    def set_cmsenergy(self, energy: float):
+        self.__cmsenergy = energy
+
+    def add_process(self, process: Process):
+        self.__processes.append(process)
+
+    def build(self):
+        self.write_instruction("read snippets/PPCollider.in")
+        self.write_instruction("set /Herwig/Generators/EventGenerator:EventHandler:LuminosityFunction:Energy %f" %(self.__cmsenergy))
+        for proc in self.__processes:
+            proc.encode()
+
+        # Stable particles with a lifetime > 10 mm (decay externally)
+        self.write_instruction("set /Herwig/Decays/DecayHandler:MaxLifeTime 10*mm")
+        self.write_instruction("set /Herwig/Decays/DecayHandler:LifeTimeOption Average")
+
+        #HEP MC writer
+        self.write_instruction("read snippets/HepMC.in\n")
+        self.write_instruction("set /Herwig/Analysis/HepMC:Filename {}".format(self.__hepmcfile))
+        self.write_instruction("set /Herwig/Analysis/HepMC:PrintEvent {}".format(self.__events))
+        self.write_instruction('saverun herwig /Herwig/Generators/EventGenerator')
 
 class HerwigEngine(SimulationEngine):
 
     def __init__(self, repository: str, runcard: str):
-        super(SimulationEngine).init(repository, runcard)
+        super().__init__(repository, runcard)
         self.generator = "herwig"
-        self.inputfiles = [self.__runcard] + [os.path.join(self.__repository, inputfile) for inputfile in os.listdir(self.__repository, "HerwigIn")]
+        self.inputfiles = [self._runcard] + [os.path.join(self._repository, inputfile) for inputfile in os.listdir(self._repository, "HerwigIn")]
+        self.__runcard = HerwigRuncard(self._runcard)
 
     def generate_runcard(self, params: SimulationParam):
         # See (minimum-bias): http://mcplots.cern.ch/dat/pp/jets/pt/atlas3-akt4/7000/herwig++/2.7.1/default.params
         # See (jet): http://mcplots.cern.ch/dat/pp/jets/pt/cms2011-y0.5/7000/herwig++/2.7.1/default.params
         # See also for minimum-bias: Chapter B.2 https://arxiv.org/abs/0803.0883
-        with open(self.__runcard, "w") as myfile:
-            myfile.write("read snippets/PPCollider.in\n") # Markus: Take PPCollider.in fron Herwig repositiory instead of custom version
-            myfile.write("set /Herwig/Generators/EventGenerator:EventHandler:LuminosityFunction:Energy %f\n" %(params.cms_energy))
-            if params.process == "mb":
-                # MB tune from Herwig repo
-                myfile.write("set /Herwig/Shower/ShowerHandler:IntrinsicPtGaussian 2.2*GeV\n")
-                myfile.write("read snippets/MB.in\n")
-                myfile.write("read snippets/Diffraction.in\n")
-            else:
-                # Use SoftTune as UE tune for Herwig7 (>= 7.1) based on https://herwig.hepforge.org/tutorials/mpi/tunes.html
-                myfile.write("read {}.in\n".format(params.tune))
-                # Set PDF (LO)
-                self.__configure_pdfset(params.pdfset)
-                kthardmin = 0.
-                kthardmax = 0.
-                self.__configure_Matrixelement(myfile, params.process)
-                if params.process == "beauty" or params.process == "charm":
-                    kthardmin = 0.
-                    kthardmax = params.cms_energy
-                elif params.process == "dijet_lo":
-                    kthardmin = 5.
-                    kthardmax = params.cms_energy
-                elif params.process == "ktmin":
-                    kthardmin = params.ktmin
-                    kthardmax = params.cms_energy
-                elif params.process == "pthard":
-                    pthardhandler = PtHardHandler()
-                    pthardlimits = pthardhandler.get_limits(params.pthardbin)
-                    kthardmin = pthardlimits[0]
-                    kthardmax = pthardlimits[1]
-                else:
-                    print("Process '{}' not implemented for HERWIG!".format(params.process))
-                    exit(1)
-                if kthardmax > 0.:
-                    self.__configure_kthardrange(myfile, kthardmin, kthardmax, params.cms_energy)
-                myfile.write("set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE -1\n")
+        self.__runcard.set_cmsenergy(params.cms_energy)
+        self.__runcard.set_events(params.events)
+        self.__runcard.set_hepmcfile(params.hepmcfile)
+        if params.process == "mb":
+            self.__runcard.add_process(HerwigRuncard.MBProcess())
+        else:
+            process: HerwigRuncard.HardProcess = None
+            ktmin = 0 
+            ktmax = params.cms_energy
+            if params.process == "charm" or params.process == "beauty":
+                process = HerwigRuncard.HeavyFlavourProcess(params.process)
+            elif params.process == "dijet_lo":
+                process = HerwigRuncard.DijetProcess()
+                ktmin = 5.
+            elif params.process == "ktmin":
+                process = HerwigRuncard.DijetProcess()
+                ktmin = params.ktmin
+            elif params.process == "pthard":
+                pthardhandler = PtHardHandler()
+                pthardlimits = pthardhandler.get_limits(params.pthardbin)
+                ktmin = pthardlimits[0]
+                ktmax = pthardlimits[1]                
+                process = HerwigRuncard.DijetProcess()
+            else:       
+                print("Process '{}' not implemented for HERWIG!".format(params.process))
+                exit(1)
+            process.configure(ktmin, ktmax, 0.)
+            process.set_tune(params.tune)
+            self.__runcard.add_process(process)
+        self.__runcard.build()
 
-            # Stable particles with a lifetime > 10 mm (decay externally)
-            myfile.write("set /Herwig/Decays/DecayHandler:MaxLifeTime 10*mm\n")
-            myfile.write("set /Herwig/Decays/DecayHandler:LifeTimeOption Average\n")
-
-            #HEP MC writer
-            myfile.write("read snippets/HepMC.in\n")
-            myfile.write("set /Herwig/Analysis/HepMC:Filename {}\n".format(params.hepmcfile))
-            myfile.write("set /Herwig/Analysis/HepMC:PrintEvent {}\n".format(params.events))
-            myfile.write('saverun herwig /Herwig/Generators/EventGenerator\n')
-
-            myfile.close()
-
-    def __configure_Matrixelement(self, runcard, process: str):
-        mename = ""
-        if process == "dijet_lo" or process == "ktmin" or process == "pthard":
-            mename = "MEQCD2to2"
-        elif process == "charm" or process == "beauty":
-            mename = "MEHeavyQuark"
-            runcard.write("set /Herwig/MatrixElements/MEHeavyQuark:QuarkType {}\n".format(4 if process == "charm" else 5))
-        runcard.write("insert /Herwig/MatrixElements/SubProcess:MatrixElements[0] /Herwig/MatrixElements/{}\n".format(mename))
-
-    def __configure_pdfset(self, runcard, pdfset: str):
-        runcard.write("set /Herwig/Partons/HardLOPDF:PDFName {}\n".format(pdfset))
-        runcard.write("set /Herwig/Partons/ShowerLOPDF:PDFName {}\n".format(pdfset))
-        runcard.write("set /Herwig/Partons/MPIPDF:PDFName {}\n".format(pdfset))
-        runcard.write("set /Herwig/Partons/RemnantPDF:PDFName {}\n".format(pdfset))
-
-    def __configure_kthardrange(self, runcard, ktmin: float, ktmax: float, mhat_max: float):
-        runcard.write("set /Herwig/Cuts/JetKtCut:MinKT %f*GeV\n" %(ktmin))
-        runcard.write("set /Herwig/Cuts/JetKtCut:MaxKT %f*GeV\n" %(ktmax))
-        runcard.write("set /Herwig/Cuts/Cuts:MHatMax %f*GeV\n" %(mhat_max))
-        runcard.write("set /Herwig/Cuts/Cuts:MHatMin 0.0*GeV\n")
 
 class HerwigRunner(SimulationRunner):
 
     def __init__(self, runcard: str, events: int, seed: int):
-        super(SimulationRunner).__init__(runcard, events, seed)
+        super().__init__(runcard, events, seed)
         self.modules = ["Herwig/latest"]
 
     def launch(self):
@@ -97,7 +168,7 @@ class HerwigRunner(SimulationRunner):
         for module in self.modules:
             runsteer.load_module(module)
         runsteer.print_modules()
-        runsteer.source_script("$HOME/lhapdf_data_setenv")
-        runsteer.write_instruction("Herwig --repo={REPO} read {RUNCARD} &> hw_setup.log".format(REPO=herwig_repository, RUNCARD=self.runcard))
-        runsteer.write_instruction("Herwig --repo={REPO} run herwig.run -N {EVENTS} -s {SEED} &> hw_run.log".format(REPO=herwig_repository, EVENTS=self.events, SEED=self.seed))
+        runsteer.source_script("$CLUSTER_HOME/lhapdf_data_setenv")
+        runsteer.write_instruction("Herwig --repo={REPO} read {RUNCARD} &> hw_setup.log".format(REPO=herwig_repository, RUNCARD=self._runcard))
+        runsteer.write_instruction("Herwig --repo={REPO} run herwig.run -N {EVENTS} -s {SEED} &> hw_run.log".format(REPO=herwig_repository, EVENTS=self._events, SEED=self._seed))
         runsteer.execute()

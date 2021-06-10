@@ -1,9 +1,16 @@
 #! /bin/bash
-NEVENTS=$1
-SEED=$2
-MACRO=$3
+CLUSTER=$1
+NEVENTS=$2
+SEED=$3
+MACRO=$4
 
-source $HOME/alice_setenv
+CLUSTER_HOME=
+if [ $CLUSTER == "CADES" ]; then
+    CLUSTER_HOME=$HOME
+elif [ $CLUSTER == "B587" ]; then
+    CLUSTER_HOME=/software/markus/alice
+fi
+
 PACKAGES=(Herwig ROOT)
 ALIENV=`which alienv`
 for pack in ${PACKAGES[@]}; do
@@ -11,7 +18,7 @@ for pack in ${PACKAGES[@]}; do
 done
 eval `$ALIENV list`
 # Additional PDF sets locally installed
-source $HOME/lhapdf_data_setenv
+source $CLUSTER_HOME/lhapdf_data_setenv
 
 echo "Using random seed                 $SEED"
 echo "Simulating number of events       $NEVENTS"

@@ -1,10 +1,20 @@
 #! /bin/bash
 
-ENGINE=$1
-RUNCARD=$2
-NEVENTS=$3
-SEED=$4
-MACRO=$5
+CLUSTER=$1
+ENGINE=$2
+RUNCARD=$3
+NEVENTS=$4
+SEED=$5
+MACRO=$6
+
+CLUSTER_HOME=
+if [ $CLUSTER == "CADES" ]; then
+    CLUSTER_HOME=$HOME
+elif [ $CLUSTER == "B587" ]; then
+    CLUSTER_HOME=/software/markus/alice
+fi
+# Additional PDF sets locally installed
+source $CLUSTER_HOME/lhapdf_data_setenv
 
 SCRIPTNAME=`readlink -f $0`
 REPO=`dirname $SCRIPTNAME`

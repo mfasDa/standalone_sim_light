@@ -1,5 +1,24 @@
 #! /usr/bin/env python3
 
+class RunCard:
+
+    def __init__(self, name: str):
+        self.__writer = open(name, "w")
+
+    def write_instruction(self, instruction: str):
+        self.__writer.write("{}\n".format(instruction))
+    
+    def __del__(self):
+        self.__writer.close()
+
+class Process:
+
+    def __init__(self):
+        pass
+
+    def encode(self, runcard: RunCard):
+        pass
+
 
 class SimulationParam:
 
@@ -96,13 +115,13 @@ class PtHardHandler:
 class SimulationEngine:
 
     def __init__(self, repo: str, runcard: str):
-        self._repo = repo
+        self._repository = repo
         self._runcard = runcard
         self._generator = ""
         self._inputfiles = []
 
     def set_repo(self, repo: str):
-        self._repo = repo
+        self._repository = repo
 
     def set_runcard(self, runcard: str):
         self._runcard = runcard
@@ -114,7 +133,7 @@ class SimulationEngine:
         self._inputfiles = inputfiles
 
     def get_repo(self) -> str:
-        return self._repo
+        return self._repository
 
     def get_runcard(self) -> str:
         return self._runcard
@@ -140,6 +159,9 @@ class SimulationRunner:
         self._events = events
         self._seed = seed
         self._modules = []
+
+    def launch(self):
+        pass
 
     def set_runcard(self, runcard: str):
         self._runcard = runcard

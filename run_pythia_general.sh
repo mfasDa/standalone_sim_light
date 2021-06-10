@@ -1,9 +1,17 @@
 #! /bin/bash
-NEVENTS=$1
-SEED=$2
-ENERGYCMS=$3
-PTHARDBIN=$4
-MACRO=$5
+CLUSTER=$1
+NEVENTS=$2
+SEED=$3
+ENERGYCMS=$4
+PTHARDBIN=$5
+MACRO=$6
+
+CLUSTER_HOME=
+if [ $CLUSTER == "CADES" ]; then
+    CLUSTER_HOME=$HOME
+elif [ $CLUSTER == "B587" ]; then
+    CLUSTER_HOME=/software/markus/alice
+fi
 
 source $HOME/alice_setenv
 PACKAGES=(pythia ROOT fastjet)
@@ -13,7 +21,7 @@ for pack in ${PACKAGES[@]}; do
 done
 eval `$ALIENV list`
 # Additional PDF sets locally installed
-source $HOME/lhapdf_data_setenv
+source $CLUSTER_HOME/lhapdf_data_setenv
 
 echo "Using random seed                 $SEED"
 echo "CMS energy                        $ENERGYCMS"

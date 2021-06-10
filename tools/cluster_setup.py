@@ -3,12 +3,16 @@
 class cluster_setup(object):
 
     def __init__(self):
+        self._name = None
         self._image = None
         self._containermounts = None
         self._basemodules = None
         self._account = None
         self._hasMemResouce = None
         self._hasTimeLimit = None
+
+    def name(self):
+        return self._name
 
     def image(self):
         return self._image

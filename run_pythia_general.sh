@@ -13,7 +13,10 @@ elif [ $CLUSTER == "B587" ]; then
     CLUSTER_HOME=/software/markus/alice
 fi
 
-source $HOME/alice_setenv
+envscript=$CLUSTER_HOME/alice_setenv
+if [ -f $envscript ]; then
+    source $CLUSTER_HOME/alice_setenv
+fi
 PACKAGES=(pythia ROOT fastjet)
 ALIENV=`which alienv`
 for pack in ${PACKAGES[@]}; do

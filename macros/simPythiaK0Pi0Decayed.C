@@ -111,6 +111,10 @@ public:
     }
   }
 
+  void fillPi0(double pt) { hSpecConstPi0->Fill(pt); }
+
+  void fillK0(double pt) { hSpecConstK0->Fill(pt); }
+
   void build()
   {
     hNevents = new TH1D("hNevents", "hNevents", 21, -0.5, 20.5);
@@ -123,6 +127,10 @@ public:
     hPtHard->SetDirectory(nullptr);
     hEventScale = new TH1D("hEventScale", "event scale", 1000, 0., 1000.);
     hEventScale->SetDirectory(nullptr);
+    hSpecConstPi0 = new TH1D("hSpecConstPi0", "Spectrum of selected constituent pi0", 1000, 0., 1000.);
+    hSpecConstPi0->SetDirectory(nullptr);
+    hSpecConstK0 = new TH1D("hSpecConstK0", "Spectrum of selected constituent K0", 1000, 0., 1000.);
+    hSpecConstK0->SetDirectory(nullptr);
     for (auto R : ROOT::TSeqI(2, 7))
     {
       SoftDropRbin rb;
@@ -293,6 +301,8 @@ private:
   TH1 *hTrials;
   TH1 *hPtHard;
   TH1 *hEventScale;
+  TH1 *hSpecConstPi0;
+  TH1 *hSpecConstK0;
   std::map<int, SoftDropRbin> mData;
 };
 
@@ -530,6 +540,11 @@ void simPythiaK0Pi0Decayed(int pthardbin, int seed, double ecms = 13000., int ma
     //->cross_section()->cross_section() * 1e-9; // in mb
     histos.countEvent(pthardbin, eventscale, pthard, crosssection, trials);
     auto particlesForJetfinding = select_particles(event);
+    for(auto &part : particlesForJetfinding) {
+      auto partInfo = dynamic_cast<const PythiaConstituent *>(part.user_info_ptr())->getParticle();
+      if(std::abs(partInfo->id()) == 111) histos.fillPi0(partInfo->pT());
+      if(std::abs(partInfo->id()) == 310) histos.fillPi0(partInfo->pT());
+    }
     for (auto R : ROOT::TSeqI(2, 7))
     {
       double jetradius = double(R) / 10.;

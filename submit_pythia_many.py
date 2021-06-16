@@ -17,6 +17,8 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--timelimit", metavar="TIMELIMIT", type=str, default="14:00:00", help="Time limit")
     parser.add_argument("-q", "--queue", metavar="QUEUE", default="gpu", help="Queue/Partition (default: gpu)")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug messages")
+    parser.add_argument("--minpthard", metavar="MINPTHARD", type=int, default=0, help="Min. pt-hard bin")
+    parser.add_argument("--maxpthard", metavar="MAXPTHARD", type=int, default=20, help="Max. pt-hard bin")
     args = parser.parse_args()
 
     loglevel = logging.INFO
@@ -28,6 +30,7 @@ if __name__ == "__main__":
     if len(args.rootfile):
         rootfile = args.rootfile
 
-    for ipth in range(0, 21):
+    logging.info("Submitting PYTHIA for pt-hard bins from %d to %d", args.minpthard, args.maxpthard)
+    for ipth in range(args.minpthard, args.maxpthard+1):
         outbindir =os.path.join(args.outputdir, "bin{}".format(ipth))
         submit_simulation_analysis_pythia(outbindir, args.jobs, args.nevents, args.ebeam, ipth, args.macro, args.timelimit, rootfile, args.queue)

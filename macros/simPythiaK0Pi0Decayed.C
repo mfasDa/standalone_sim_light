@@ -148,6 +148,8 @@ public:
     hTrials->Write();
     hPtHard->Write();
     hEventScale->Write();
+    hSpecConstPi0->Write();
+    hSpecConstK0->Write();
     createDirectoryStructure(*writer);
     for (auto R : ROOT::TSeqI(2, 7))
     {

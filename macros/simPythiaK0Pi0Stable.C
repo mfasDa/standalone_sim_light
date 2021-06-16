@@ -545,7 +545,7 @@ void simPythiaK0Pi0Stable(int pthardbin, int seed, double ecms = 13000., int max
     for(auto &part : particlesForJetfinding) {
       auto partInfo = dynamic_cast<const PythiaConstituent *>(part.user_info_ptr())->getParticle();
       if(std::abs(partInfo->id()) == 111) histos.fillPi0(partInfo->pT());
-      if(std::abs(partInfo->id()) == 310) histos.fillPi0(partInfo->pT());
+      if(std::abs(partInfo->id()) == 310) histos.fillK0(partInfo->pT());
     }
     for (auto R : ROOT::TSeqI(2, 7))
     {

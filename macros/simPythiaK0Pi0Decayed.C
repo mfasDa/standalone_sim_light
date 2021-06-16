@@ -551,8 +551,8 @@ void simPythiaK0Pi0Decayed(int pthardbin, int seed, double ecms = 13000., int ma
         histos.fill(proctyoe, HistogramHandler::HistType_t::kZg, R, jet.pt(), softdropresults.Zg);
         histos.fill(HardProcessType_t::kAllJets, HistogramHandler::HistType_t::kRg, R, jet.pt(), softdropresults.Zg < 0.1 ? -0.01 : softdropresults.Rg);
         histos.fill(proctyoe, HistogramHandler::HistType_t::kRg, R, jet.pt(), softdropresults.Zg < 0.1 ? -0.01 : softdropresults.Rg);
-        histos.fill(HardProcessType_t::kAllJets, HistogramHandler::HistType_t::kRg, R, jet.pt(), softdropresults.Zg < 0.1 ? -1. : iterativeSoftdropresults.size());
-        histos.fill(proctyoe, HistogramHandler::HistType_t::kRg, R, jet.pt(), softdropresults.Zg < 0.1 ? -1. : iterativeSoftdropresults.size());
+        histos.fill(HardProcessType_t::kAllJets, HistogramHandler::HistType_t::kNsd, R, jet.pt(), softdropresults.Zg < 0.1 ? -1. : iterativeSoftdropresults.size());
+        histos.fill(proctyoe, HistogramHandler::HistType_t::kNsd, R, jet.pt(), softdropresults.Zg < 0.1 ? -1. : iterativeSoftdropresults.size());
         histos.fill(HardProcessType_t::kAllJets, HistogramHandler::HistType_t::kThetag, R, jet.pt(), softdropresults.Zg < 0.1 ? -0.01 : softdropresults.Rg / jetradius);
         histos.fill(proctyoe, HistogramHandler::HistType_t::kThetag, R, jet.pt(), softdropresults.Zg < 0.1 ? -0.01 : softdropresults.Rg / jetradius);
       }

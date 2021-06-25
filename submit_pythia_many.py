@@ -32,5 +32,6 @@ if __name__ == "__main__":
 
     logging.info("Submitting PYTHIA for pt-hard bins from %d to %d", args.minpthard, args.maxpthard)
     for ipth in range(args.minpthard, args.maxpthard+1):
+        logging.info("submitting {}".format(ipth))
         outbindir =os.path.join(args.outputdir, "bin{}".format(ipth))
         submit_simulation_analysis_pythia(outbindir, args.jobs, args.nevents, args.ebeam, ipth, args.macro, args.timelimit, rootfile, args.queue)

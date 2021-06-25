@@ -340,7 +340,7 @@ bool isFinalState(const Pythia8::Particle &p)
   return p.isFinal();
 }
 
-std::vector<fastjet::PseudoJet> select_particles(Pythia8::Event &event)
+std::vector<fastjet::PseudoJet> select_particles(Pythia8::Event &event, double phimin = -1., double phimax = -1)
 {
   std::vector<fastjet::PseudoJet> result;
   for (auto partit = event.begin(); partit != event.end(); ++partit)
@@ -350,6 +350,10 @@ std::vector<fastjet::PseudoJet> select_particles(Pythia8::Event &event)
       continue;
     if (std::abs(particle.eta()) > 0.7)
       continue;
+    if (phimin >= 0. && phimax >= 0.) {
+      double phival = TVector2::Phi_0_2pi(particle.phi());
+      if(!(phival >= phimin && phival <= phimax)) continue;
+    }
     fastjet::PseudoJet jetparticle{particle.px(), particle.py(), particle.pz(), particle.e()};
     jetparticle.set_user_info(new PythiaConstituent(&particle));
     result.emplace_back(jetparticle);
@@ -528,6 +532,9 @@ Pythia8::Pythia *configurePythia(int pthardbin, double ecms, int seed)
 
 void simPythiaK0DecayedPi0Stable(int pthardbin, int seed, double ecms = 13000., int maxevents = 100000)
 {
+  bool cutPhiPart = true;
+  const double phimin_emcal = 1.3962634,
+               phimax_emcal = 3.2836121;
   HistogramHandler histos;
   histos.build();
   std::unique_ptr<Pythia8::Pythia> pythia(configurePythia(pthardbin, ecms, seed));
@@ -541,7 +548,9 @@ void simPythiaK0DecayedPi0Stable(int pthardbin, int seed, double ecms = 13000., 
          pthard = pythia->info.pTHat();
     //->cross_section()->cross_section() * 1e-9; // in mb
     histos.countEvent(pthardbin, eventscale, pthard, crosssection, trials);
-    auto particlesForJetfinding = select_particles(event);
+    double phimin = cutPhiPart ? phimin_emcal : -1.,
+           phimax = cutPhiPart ? phimax_emcal : -1.;
+    auto particlesForJetfinding = select_particles(event, phimin, phimax);
     for(auto &part : particlesForJetfinding) {
       auto partInfo = dynamic_cast<const PythiaConstituent *>(part.user_info_ptr())->getParticle();
       if(std::abs(partInfo->id()) == 111) histos.fillPi0(partInfo->pT());
